@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"goup/lib/app"
 	"os"
+
+	_ "github.com/spf13/cobra"
 )
 
 var command string = "help"
 
 var funcMap map[string]func() = map[string]func(){
-	"help":    help,
+	"help":    app.App.Print,
 	"update":  app.CheckUpdate,
-	"version": app.GetVersion,
+	"version": app.App.GetVersion,
 }
 
 func init() {
@@ -25,16 +27,11 @@ func init() {
 	}
 }
 
-func help() {
-	fmt.Println("goup", app.Version)
-	fmt.Println("")
-	fmt.Println("USAGE:")
-	fmt.Println("-", "goup.exe [COMMAND]")
-	fmt.Println("")
-	fmt.Println("COMMAND:")
-	fmt.Println("-", "update", "Update golang stable version")
-	fmt.Println("-", "version", "Print version information")
-	fmt.Println("-", "help", "Print this information")
+type description struct {
+	AppName    string
+	AppDesc    string
+	AppVersion string
+	AppOptions []map[string]string
 }
 
 func noSupport() {
