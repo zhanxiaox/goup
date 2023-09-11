@@ -10,7 +10,7 @@ import (
 
 var command string = "help"
 
-var funcMap map[string]func() = map[string]func(){
+var fnMap = map[string]func(){
 	"help":    app.App.Print,
 	"update":  app.CheckUpdate,
 	"version": app.App.GetVersion,
@@ -20,7 +20,7 @@ func init() {
 	if len(os.Args) > 1 {
 		command = os.Args[1]
 	}
-	if fn, ok := funcMap[command]; ok {
+	if fn, ok := fnMap[command]; ok {
 		fn()
 	} else {
 		noSupport()
@@ -28,5 +28,5 @@ func init() {
 }
 
 func noSupport() {
-	fmt.Println("no support")
+	fmt.Println("no support this command", os.Args)
 }
