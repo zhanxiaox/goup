@@ -27,13 +27,6 @@ func init() {
 	}
 }
 
-type description struct {
-	AppName    string
-	AppDesc    string
-	AppVersion string
-	AppOptions []map[string]string
-}
-
 func noSupport() {
 	fmt.Println("no support")
 }

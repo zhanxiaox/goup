@@ -9,11 +9,12 @@ import (
 )
 
 type app struct {
-	Name        string
-	Version     string
-	GoVersion   string
-	Description string
-	Options     []options
+	Name           string
+	AppVersion     string
+	AppBuildVerion string
+	GoVersion      string
+	Description    string
+	Options        []options
 }
 
 type options struct {
@@ -30,8 +31,9 @@ var App app
 
 func init() {
 	App.Name = "goup"
-	App.Version = "0.0.1"
-	App.GoVersion = runtime.Version()
+	App.AppVersion = "0.0.1"
+	App.AppBuildVerion = runtime.Version()
+	App.GoVersion = Golang.Version
 	App.Description = "Goup is Golang stable installer"
 
 	usage := []command{
@@ -56,7 +58,7 @@ func (a *app) SetOptions(name string, commands []command) {
 }
 
 func (a *app) Print() {
-	fmt.Println(a.Name, a.Version)
+	fmt.Println(a.Name, a.AppVersion)
 	fmt.Println(a.Description)
 	fmt.Println()
 	for _, v := range a.Options {
@@ -73,8 +75,8 @@ func (a *app) Print() {
 }
 
 func (a *app) GetVersion() {
-	fmt.Println("goup", a.Version)
-	fmt.Println("Go", a.GoVersion)
+	fmt.Println("goup", a.AppVersion, "( build in", a.AppBuildVerion, ")")
+	fmt.Println("Go", Golang.Version)
 }
 
 func Installer(filePath string) {
