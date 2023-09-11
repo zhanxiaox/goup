@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -19,6 +20,9 @@ type golang struct {
 var Golang golang
 
 func init() {
+	Golang.Version = "go0.0.0"
+	Golang.Arch = runtime.GOARCH
+	Golang.Os = runtime.GOOS
 	Golang.Domain = "https://golang.google.cn"
 	Golang.DownloadUrl = Golang.Domain + "/dl"
 	Golang.GetVersion()
