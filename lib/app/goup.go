@@ -52,6 +52,29 @@ func (a *app) Run() {
 	}
 }
 
+func init() {
+	Goup.Name = "goup"
+	Goup.AppVersion = "0.0.1"
+	Goup.AppBuildVerion = runtime.Version()
+	Goup.GoVersion = Go.Version
+	Goup.Description = "Goup is Golang toolchain installer"
+
+	usage := []command{
+		{Description: []string{"goup.exe [OPTIONS]"}},
+	}
+
+	options := []command{
+		{Description: []string{"help", "Print this information"}, Fn: Goup.Print},
+		{Description: []string{"update", "Update golang stable version"}, Fn: Go.CheckUpdate},
+		{Description: []string{"version", "Print version information"}, Fn: Goup.GetVersion},
+		{Description: []string{"install", "Install goup into Golang's system path"}, Fn: Goup.Install},
+		{Description: []string{"uninstall", "Remove goup from Golang's system path"}, Fn: nil},
+	}
+
+	Goup.SetOptions("USAGE:", usage)
+	Goup.SetOptions("OPTIONS:", options)
+}
+
 func (a *app) Check() {
 	Goup.Name = "goup"
 	Goup.AppVersion = "0.0.1"

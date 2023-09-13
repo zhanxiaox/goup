@@ -21,6 +21,14 @@ type golang struct {
 
 var Go golang
 
+func init() {
+	Go.IsInstall = false
+	Go.Domain = "https://golang.google.cn"
+	Go.DownloadUrl = Go.Domain + "/dl"
+	Go.GetVersion()
+	Go.GetSystemPath()
+}
+
 func (g *golang) Check() {
 	Go.IsInstall = false
 	Go.Domain = "https://golang.google.cn"
