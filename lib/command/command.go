@@ -14,7 +14,7 @@ var fnMap = map[string]func(){
 	"help":      app.App.Print,
 	"update":    app.CheckUpdate,
 	"version":   app.App.GetVersion,
-	"install":   nil,
+	"install":   app.App.Install,
 	"uninstall": nil,
 }
 

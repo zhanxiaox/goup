@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"syscall"
@@ -59,6 +60,10 @@ func (a *app) Install() {
 	if match == "" {
 		fmt.Println("未找到 Golang 系统变量路径，确定已安装最新版本")
 	} else {
+		baseName := filepath.Base(os.Args[0])
+		pathName := filepath.Join(match, baseName)
+		fmt.Println(pathName)
+		// os.Create(pathName)
 	}
 }
 
