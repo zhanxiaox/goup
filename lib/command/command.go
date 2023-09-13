@@ -11,9 +11,11 @@ import (
 var command string = "help"
 
 var fnMap = map[string]func(){
-	"help":    app.App.Print,
-	"update":  app.CheckUpdate,
-	"version": app.App.GetVersion,
+	"help":      app.App.Print,
+	"update":    app.CheckUpdate,
+	"version":   app.App.GetVersion,
+	"install":   nil,
+	"uninstall": nil,
 }
 
 func init() {

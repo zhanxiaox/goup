@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"syscall"
 )
@@ -44,10 +45,21 @@ func init() {
 		{Description: []string{"help", "Print this information"}},
 		{Description: []string{"update", "Update golang stable version"}},
 		{Description: []string{"version", "Print version information"}},
+		{Description: []string{"install", "Install goup into Golang's system path"}},
+		{Description: []string{"uninstall", "Remove goup from Golang's system path"}},
 	}
 
 	App.SetOptions("USAGE:", usage)
 	App.SetOptions("OPTIONS:", options)
+}
+
+func (a *app) Install() {
+	re := regexp.MustCompile(`[^;]+\\Go\\bin|[^;]+\\go\\bin`)
+	match := re.FindString(os.Getenv("path"))
+	if match == "" {
+		fmt.Println("未找到 Golang 系统变量路径，确定已安装最新版本")
+	} else {
+	}
 }
 
 func (a *app) SetOptions(name string, commands []command) {
