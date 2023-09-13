@@ -1,9 +1,9 @@
 package main
 
-import (
-	_ "goup/lib/command"
-)
+import "goup/lib/app"
 
 func main() {
-
+	app.Go.Check()
+	app.Goup.Check()
+	app.Goup.Run()
 }
