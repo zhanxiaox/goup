@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -46,9 +45,9 @@ func (g *golang) GetDomain() {
 	select {
 	case g.Domain = <-complete:
 		g.DownloadUrl = g.Domain + "/dl"
-		fmt.Println("域名验证成功：", g.Domain)
+		Goup.Info("域名验证成功：" + g.Domain)
 	case <-time.After(5 * time.Second):
-		fmt.Println("域名验证失败", domains)
+		Goup.Error("域名验证失败")
 	}
 }
 
@@ -102,9 +101,9 @@ func (g *golang) CheckUpdate() {
 		if filepath, err := DownloadFile(url); err == nil {
 			Installer(filepath)
 		} else {
-			fmt.Println(err)
+			Goup.Error(err.Error())
 		}
 	} else {
-		fmt.Println(err)
+		Goup.Error(err.Error())
 	}
 }

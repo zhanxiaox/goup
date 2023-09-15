@@ -31,6 +31,14 @@ type command struct {
 
 var Goup app
 
+func (a *app) Info(msg string) {
+	fmt.Println("[INFO]:", msg)
+}
+
+func (a *app) Error(msg string) {
+	fmt.Println("[ERROR]:", msg)
+}
+
 func (a *app) Run() {
 	isCalled := false
 	if len(os.Args) > 1 {
@@ -80,12 +88,12 @@ func (a *app) Uninstall() {
 	pathName := filepath.Join(Go.Path, baseName)
 	_, err := os.Stat(pathName)
 	if os.IsNotExist(err) {
-		fmt.Printf("还未安装 goup")
+		a.Info("goup not install")
 	} else {
 		if err := os.Remove(pathName); err == nil {
-			fmt.Printf("uninstall success")
+			a.Info("uninstall success")
 		} else {
-			fmt.Println("uninstall fail:", err)
+			a.Error("uninstall fail:" + err.Error())
 		}
 	}
 }
@@ -97,33 +105,31 @@ func (a *app) Install() {
 
 		srcFile, err := os.Open(os.Args[0])
 		if err != nil {
-			fmt.Println(err)
+			a.Error(err.Error())
 			return
 		}
 		defer srcFile.Close()
 
 		destFile, err := os.Create(pathName)
 		if err != nil {
-			fmt.Println(err)
+			a.Error(err.Error())
 			return
 		}
 		defer destFile.Close()
 
 		_, err = io.Copy(destFile, srcFile)
 		if err != nil {
-			fmt.Println(err)
+			a.Error(err.Error())
 			return
 		}
-
-		fmt.Println("Install success")
-
+		a.Info("Install success")
 	} else {
-		fmt.Println("还未安装 golang")
+		a.Error("还未安装 golang")
 	}
 }
 
 func (a *app) NoSupport(fn string) {
-	fmt.Println("No support this command", fn)
+	a.Error("No support this command: " + fn)
 }
 
 func (a *app) SetOptions(name string, commands []command) {
