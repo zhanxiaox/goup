@@ -3,10 +3,12 @@ package app
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type golang struct {
@@ -23,18 +25,31 @@ var Go golang
 
 func init() {
 	Go.IsInstall = false
-	Go.Domain = "https://golang.google.cn"
-	Go.DownloadUrl = Go.Domain + "/dl"
+	Go.GetDomain()
 	Go.GetVersion()
 	Go.GetSystemPath()
 }
 
-func (g *golang) Check() {
-	Go.IsInstall = false
-	Go.Domain = "https://golang.google.cn"
-	Go.DownloadUrl = Go.Domain + "/dl"
-	Go.GetVersion()
-	Go.GetSystemPath()
+func (g *golang) GetDomain() {
+	domains := []string{"https://golang.google.cn", "https://golang.google.com"}
+	complete := make(chan string, 1)
+	for _, domain := range domains {
+		go func(domain string) {
+			if _, err := http.Get(domain); err == nil {
+				complete <- domain
+			}
+		}(domain)
+		if len(complete) == 1 {
+			break
+		}
+	}
+	select {
+	case g.Domain = <-complete:
+		g.DownloadUrl = g.Domain + "/dl"
+		fmt.Println("域名验证成功：", g.Domain)
+	case <-time.After(5 * time.Second):
+		fmt.Println("域名验证失败", domains)
+	}
 }
 
 func (g *golang) GetSystemPath() {

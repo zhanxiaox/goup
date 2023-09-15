@@ -68,41 +68,32 @@ func init() {
 		{Description: []string{"update", "Update golang stable version"}, Fn: Go.CheckUpdate},
 		{Description: []string{"version", "Print version information"}, Fn: Goup.GetVersion},
 		{Description: []string{"install", "Install goup into Golang's system path"}, Fn: Goup.Install},
-		{Description: []string{"uninstall", "Remove goup from Golang's system path"}, Fn: nil},
+		{Description: []string{"uninstall", "Remove goup from Golang's system path"}, Fn: Goup.Uninstall},
 	}
 
 	Goup.SetOptions("USAGE:", usage)
 	Goup.SetOptions("OPTIONS:", options)
 }
 
-func (a *app) Check() {
-	Goup.Name = "goup"
-	Goup.AppVersion = "0.0.1"
-	Goup.AppBuildVerion = runtime.Version()
-	Goup.GoVersion = Go.Version
-	Goup.Description = "Goup is Golang toolchain installer"
-
-	usage := []command{
-		{Description: []string{"goup.exe [OPTIONS]"}},
+func (a *app) Uninstall() {
+	baseName := filepath.Base(os.Args[0])
+	pathName := filepath.Join(Go.Path, baseName)
+	_, err := os.Stat(pathName)
+	if os.IsNotExist(err) {
+		fmt.Printf("还未安装 goup")
+	} else {
+		if err := os.Remove(pathName); err == nil {
+			fmt.Printf("uninstall success")
+		} else {
+			fmt.Println("uninstall fail:", err)
+		}
 	}
-
-	options := []command{
-		{Description: []string{"help", "Print this information"}, Fn: a.Print},
-		{Description: []string{"update", "Update golang stable version"}, Fn: Go.CheckUpdate},
-		{Description: []string{"version", "Print version information"}, Fn: a.GetVersion},
-		{Description: []string{"install", "Install goup into Golang's system path"}, Fn: a.Install},
-		{Description: []string{"uninstall", "Remove goup from Golang's system path"}, Fn: nil},
-	}
-
-	Goup.SetOptions("USAGE:", usage)
-	Goup.SetOptions("OPTIONS:", options)
 }
 
 func (a *app) Install() {
 	if Go.IsInstall {
 		baseName := filepath.Base(os.Args[0])
 		pathName := filepath.Join(Go.Path, baseName)
-		// fmt.Println(os.Args[0], pathName)
 
 		srcFile, err := os.Open(os.Args[0])
 		if err != nil {
