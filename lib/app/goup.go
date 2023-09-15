@@ -67,8 +67,8 @@ func init() {
 		{Description: []string{"help", "Print this information"}, Fn: Goup.Print},
 		{Description: []string{"update", "Update golang stable version"}, Fn: Go.CheckUpdate},
 		{Description: []string{"version", "Print version information"}, Fn: Goup.GetVersion},
-		{Description: []string{"install", "Install goup into Golang's system path"}, Fn: Goup.Install},
-		{Description: []string{"uninstall", "Remove goup from Golang's system path"}, Fn: Goup.Uninstall},
+		{Description: []string{"install", "Install goup into Golang's system path (need root permisson)"}, Fn: Goup.Install},
+		{Description: []string{"uninstall", "Remove goup from Golang's system path (need root permisson)"}, Fn: Goup.Uninstall},
 	}
 
 	Goup.SetOptions("USAGE:", usage)
