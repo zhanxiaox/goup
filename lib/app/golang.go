@@ -2,11 +2,14 @@ package app
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -23,7 +26,6 @@ type golang struct {
 var Go golang
 
 func init() {
-	Go.IsInstall = false
 	Go.GetDomain()
 	Go.GetVersion()
 	Go.GetSystemPath()
@@ -45,9 +47,8 @@ func (g *golang) GetDomain() {
 	select {
 	case g.Domain = <-complete:
 		g.DownloadUrl = g.Domain + "/dl"
-		Goup.Info("域名验证成功：" + g.Domain)
 	case <-time.After(5 * time.Second):
-		Goup.Error("域名验证失败")
+		log.Fatalln("域名验证超时")
 	}
 }
 
@@ -60,6 +61,8 @@ func (g *golang) GetSystemPath() {
 }
 
 func (g *golang) GetVersion() {
+	g.Os = runtime.GOOS
+	g.Arch = runtime.GOARCH
 	cmd := exec.Command("go", "version")
 	if output, err := cmd.Output(); err == nil {
 		ver_string := strings.ReplaceAll(string(output), "\n", "")
@@ -77,18 +80,18 @@ func (g *golang) GetVersion() {
 }
 
 func GetStable(body_string string) (string, error) {
-	// get stable block
+	// Get stable block
 	reg_stable_block := `id="featured".*?id="stable"`
 	re := regexp.MustCompile(reg_stable_block)
 	stable_block := re.FindString(body_string)
-	// get stable download url
+	// Get stable download url
 	reg_stable := `/dl/(go\d+\.\d+\.\d+)\.` + Go.Os + `-` + Go.Arch + `\.{1}\w+`
 	re = regexp.MustCompile(reg_stable)
 	stable_download_url := re.FindStringSubmatch(stable_block)
 	var err error
 	var stable_url = ""
-	if stable_download_url[1] == Go.Version {
-		err = errors.New("已是最新: " + Go.Version)
+	if stable_download_url[1] == Go.Version && false {
+		err = errors.New("You have latest version: " + Go.Version)
 	} else {
 		err = nil
 		stable_url = Go.Domain + stable_download_url[0]
@@ -97,13 +100,38 @@ func GetStable(body_string string) (string, error) {
 }
 
 func (g *golang) CheckUpdate() {
+	log.Println("Syncing channel update for " + g.Os + "/" + g.Arch)
 	if url, err := GetStable(GetHtml(g.DownloadUrl)); err == nil {
 		if filepath, err := DownloadFile(url); err == nil {
-			Installer(filepath)
+			g.Installer(filepath)
 		} else {
-			Goup.Error(err.Error())
+			log.Fatalln(err.Error())
 		}
 	} else {
-		Goup.Error(err.Error())
+		log.Fatalln(err.Error())
 	}
 }
+
+func (g *golang) Installer(filePath string) {
+	if runtime.GOOS == "windows" {
+		msi_installer(filePath)
+	} else {
+		log.Println("No support:", runtime.GOOS)
+	}
+}
+
+func msi_installer(filePath string) {
+	log.Println("Installing...")
+	cmd := exec.Command("msiexec", "/i", filePath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		log.Fatalln("MSI install fail:", err)
+	}
+	log.Println("MSI install success")
+}
+
+func pkg_install(filePath string) {}
+
+func gz_install(filePath string) {}

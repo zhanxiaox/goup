@@ -3,11 +3,10 @@ package app
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
-	"syscall"
 )
 
 type app struct {
@@ -31,38 +30,31 @@ type command struct {
 
 var Goup app
 
-func (a *app) Info(msg string) {
-	fmt.Println("[INFO]:", msg)
-}
-
-func (a *app) Error(msg string) {
-	fmt.Println("[ERROR]:", msg)
-}
-
 func (a *app) Run() {
-	isCalled := false
-	if len(os.Args) > 1 {
-		fn := os.Args[1]
+	called := false
+	if len(os.Args) == 1 {
+		a.PrintHelpMessage()
+	} else {
+		user_called_command := os.Args[1]
 		for _, option := range Goup.Options {
 			for _, desc := range option.Command {
-				name := desc.Description[0]
-				if name == fn {
+				command := desc.Description[0]
+				if command == user_called_command {
 					desc.Fn()
-					isCalled = true
+					called = true
+					break
 				}
 			}
 		}
-		if !isCalled {
-			a.NoSupport(fn)
+		if !called {
+			a.NoSupport(user_called_command)
 		}
-	} else {
-		a.Print()
 	}
 }
 
 func init() {
-	Goup.Name = "goup"
-	Goup.AppVersion = "0.0.1"
+	Goup.Name = "Goup"
+	Goup.AppVersion = "1.0.0"
 	Goup.AppBuildVerion = runtime.Version()
 	Goup.GoVersion = Go.Version
 	Goup.Description = "Goup is Golang toolchain installer"
@@ -72,7 +64,7 @@ func init() {
 	}
 
 	options := []command{
-		{Description: []string{"help", "Print this information"}, Fn: Goup.Print},
+		{Description: []string{"help", "Print this information"}, Fn: Goup.PrintHelpMessage},
 		{Description: []string{"update", "Update golang stable version"}, Fn: Go.CheckUpdate},
 		{Description: []string{"version", "Print version information"}, Fn: Goup.GetVersion},
 		{Description: []string{"install", "Install goup into Golang's system path (need root permisson)"}, Fn: Goup.Install},
@@ -88,12 +80,12 @@ func (a *app) Uninstall() {
 	pathName := filepath.Join(Go.Path, baseName)
 	_, err := os.Stat(pathName)
 	if os.IsNotExist(err) {
-		a.Info("goup not install")
+		log.Println("Goup not install")
 	} else {
 		if err := os.Remove(pathName); err == nil {
-			a.Info("uninstall success")
+			log.Println("Uninstall success")
 		} else {
-			a.Error("uninstall fail:" + err.Error())
+			log.Println("Uninstall fail:", err)
 		}
 	}
 }
@@ -102,34 +94,28 @@ func (a *app) Install() {
 	if Go.IsInstall {
 		baseName := filepath.Base(os.Args[0])
 		pathName := filepath.Join(Go.Path, baseName)
-
 		srcFile, err := os.Open(os.Args[0])
 		if err != nil {
-			a.Error(err.Error())
-			return
+			log.Fatalln(err)
 		}
 		defer srcFile.Close()
-
 		destFile, err := os.Create(pathName)
 		if err != nil {
-			a.Error(err.Error())
-			return
+			log.Fatalln(err)
 		}
 		defer destFile.Close()
-
 		_, err = io.Copy(destFile, srcFile)
 		if err != nil {
-			a.Error(err.Error())
-			return
+			log.Fatalln(err)
 		}
-		a.Info("Install success")
+		log.Println("Install success")
 	} else {
-		a.Error("还未安装 golang")
+		log.Println("Golang 环境变量不存在或未配置，无法安装 Goup。")
 	}
 }
 
 func (a *app) NoSupport(fn string) {
-	a.Error("No support this command: " + fn)
+	log.Println(("No support this command: " + fn))
 }
 
 func (a *app) SetOptions(name string, commands []command) {
@@ -139,7 +125,7 @@ func (a *app) SetOptions(name string, commands []command) {
 	a.Options = append(a.Options, options)
 }
 
-func (a *app) Print() {
+func (a *app) PrintHelpMessage() {
 	fmt.Println(a.Name, a.AppVersion)
 	fmt.Println(a.Description)
 	fmt.Println()
@@ -157,31 +143,6 @@ func (a *app) Print() {
 }
 
 func (a *app) GetVersion() {
-	fmt.Println("goup", a.AppVersion, "( build in", a.AppBuildVerion, ")")
-	fmt.Println("Go", Go.Version)
+	fmt.Println("Goup", a.AppVersion)
+	fmt.Println("Build with", a.AppBuildVerion)
 }
-
-func Installer(filePath string) {
-	if runtime.GOOS == "windows" {
-		msi(filePath)
-	} else {
-		fmt.Println("no support")
-	}
-}
-
-func msi(filePath string) {
-	cmd := exec.Command("msiexec", "/i", filePath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println("MSI文件执行失败:", err)
-		return
-	}
-	fmt.Println("MSI文件执行完成")
-}
-
-func pkg(filePath string) {}
-
-func gz(filePath string) {}
