@@ -90,7 +90,7 @@ func GetStable(body_string string) (string, error) {
 	stable_download_url := re.FindStringSubmatch(stable_block)
 	var err error
 	var stable_url = ""
-	if stable_download_url[1] == Go.Version && false {
+	if stable_download_url[1] == Go.Version {
 		err = errors.New("You have latest version: " + Go.Version)
 	} else {
 		err = nil
